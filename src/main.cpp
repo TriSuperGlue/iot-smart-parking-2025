@@ -26,6 +26,11 @@
 #define DHTPIN D7
 #define DHTTYPE DHT11
 
+// Flame sensor
+#define FLAME_PIN A0
+#define FLAME_THRESHOLD 500
+bool isFire = false; // biến trạng thái cháy
+
 //Oled 0.96inch
 // ESP8266 mặc định: SCL = D1, SDA = D2 (Không cần define chân nếu dùng mặc định)
 #define SCREEN_WIDTH 128    // Chiều rộng
@@ -172,6 +177,43 @@ void taskDHT() {
 
 
 // ================================================================
+// TASK KHẨN CẤP: PHÁT HIỆN LỬA
+// ================================================================
+void taskSafety() {
+  // Đọc giá trị Analog (0 - 1024)
+  // Càng gần lửa, giá trị càng thấp
+  int flameValue = analogRead(FLAME_PIN);
+  
+  // Nếu giá trị thấp hơn ngưỡng -> CÓ CHÁY
+  if (flameValue < FLAME_THRESHOLD) {
+    if (!isFire) { // Nếu mới phát hiện cháy lần đầu
+      isFire = true;
+      Serial.println("!!! CANH BAO CHAY !!!");
+      
+      // 1. Mở hết cửa ngay lập tức (Chế độ thoát hiểm)
+      servo1.write(90);
+      servo2.write(90);
+      
+      // 2. Gửi cảnh báo lên Firebase
+      if (Firebase.ready()) {
+         Firebase.RTDB.setBoolAsync(&fbdo, "/canh_bao/co_chay", true);
+      }
+    }
+  } else {
+    // Hết cháy
+    if (isFire) {
+      isFire = false;
+      Serial.println("Da het chay. He thong binh thuong.");
+      // Tắt báo cháy trên Firebase
+      if (Firebase.ready()) {
+         Firebase.RTDB.setBoolAsync(&fbdo, "/canh_bao/co_chay", false);
+      }
+    }
+  }
+}
+
+
+// ================================================================
 // HIỂN THỊ MÀN HÌNH OLED
 // ================================================================
 void taskDisplay() {
@@ -180,6 +222,18 @@ void taskDisplay() {
     
     display.clearDisplay();
     display.setTextColor(SSD1306_WHITE);
+
+    // --- Ưu tiên nếu có cháy ---
+    if (isFire) {
+      display.setTextSize(2);
+      display.setCursor(10, 10);
+      display.println("WARNING!");
+      display.setTextSize(2);
+      display.setCursor(20, 40);
+      display.println("FIRE !!!");
+      display.display();
+      return; // Dừng hàm tại đây, không hiện thông tin xe nữa
+    }
 
     // --- Dòng 1: Tiêu đề ---
     display.setTextSize(1);

@@ -91,4 +91,4 @@ Dự án được tổ chức để hỗ trợ 2 board ESP8266 trong cùng một
     - Nhấn nút **Upload** (biểu tượng mũi tên) ở thanh trạng thái dưới cùng của VS Code. PlatformIO sẽ tự động build và nạp code cho cả hai board một cách tuần tự.
 
 ---
-*Dự án được thực hiện bởi [Tên của bạn].*
+*Dự án được thực hiện bởi [Tôi :D].*

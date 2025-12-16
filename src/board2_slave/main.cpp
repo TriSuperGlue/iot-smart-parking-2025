@@ -9,8 +9,8 @@
 // CẤU HÌNH PHẦN CỨNG - BOARD 2
 // ================================================================
 // Slot 2
-#define S2_TRIG_PIN D5
-#define S2_ECHO_PIN D8
+#define S2_TRIG_PIN D0
+#define S2_ECHO_PIN D1
 #define S2_SERVO_PIN D6
 
 // Flame sensor

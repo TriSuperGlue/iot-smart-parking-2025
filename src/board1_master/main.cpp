@@ -14,8 +14,8 @@
 // ================================================================
 // Slot 1
 #define S1_TRIG_PIN D0
-#define S1_ECHO_PIN D4
-#define S1_SERVO_PIN D3
+#define S1_ECHO_PIN D5
+#define S1_SERVO_PIN D4
 
 // DHT11
 #define DHTPIN D7

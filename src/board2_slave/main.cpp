@@ -14,7 +14,7 @@
 #define S2_SERVO_PIN D6
 
 // Flame sensor
-#define FLAME_PIN A0
+#define FLAME_PIN D2
 #define FLAME_THRESHOLD 500
 
 const int DISTANCE_THRESHOLD = 10;
@@ -75,23 +75,30 @@ void taskParking() {
 // TASK KHẨN CẤP: PHÁT HIỆN LỬA
 // ================================================================
 void taskSafety() {
-  int flameValue = analogRead(FLAME_PIN);
+  // Đọc tín hiệu Digital (0 hoặc 1)
+  // Cảm biến lửa: LOW (0) = CÓ CHÁY, HIGH (1) = KHÔNG CHÁY
+  int flameState = digitalRead(FLAME_PIN);
   
-  if (flameValue < FLAME_THRESHOLD) {
+  if (flameState == LOW) { // PHÁT HIỆN LỬA
     if (!isFire) {
-      isFire = true;
-      Serial.println("!!! CANH BAO CHAY !!!");
-      servo2.write(90); // Mở cửa của nó
+      isFire = true; // Đánh dấu đang cháy để không lặp lại lệnh này
+      Serial.println("!!! CANH BAO CHAY (FIRE DETECTED) !!!");
+      
+      servo2.write(90); // Mở cửa khẩn cấp
+      
       if (Firebase.ready()) {
-         Firebase.RTDB.setBoolAsync(&fbdo, "/canh_bao/co_chay", true);
+         // Dùng setBool thay vì setBoolAsync để đảm bảo lệnh quan trọng được gửi
+         Firebase.RTDB.setBool(&fbdo, "/canh_bao/co_chay", true);
       }
     }
-  } else {
-    if (isFire) {
-      isFire = false;
-      Serial.println("Da het chay. He thong binh thuong.");
+  } 
+  else { // KHÔNG CÓ LỬA (HIGH)
+    if (isFire) { // Nếu trước đó đang cháy mà giờ hết cháy
+      isFire = false; // Reset trạng thái
+      Serial.println("✅ Da het chay. He thong binh thuong.");
+      
       if (Firebase.ready()) {
-         Firebase.RTDB.setBoolAsync(&fbdo, "/canh_bao/co_chay", false);
+         Firebase.RTDB.setBool(&fbdo, "/canh_bao/co_chay", false);
       }
     }
   }

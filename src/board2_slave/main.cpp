@@ -84,7 +84,7 @@ void taskSafety() {
       isFire = true; // Đánh dấu đang cháy để không lặp lại lệnh này
       Serial.println("!!! CANH BAO CHAY (FIRE DETECTED) !!!");
       
-      servo2.write(90); // Mở cửa khẩn cấp
+      servo2.write(0); // Mở cửa khẩn cấp
       
       if (Firebase.ready()) {
          // Dùng setBool thay vì setBoolAsync để đảm bảo lệnh quan trọng được gửi
@@ -114,11 +114,11 @@ void streamCallback(FirebaseStream data){
     if(data.dataPath() == "/slot_2") {
       if(isOpen) {
         Serial.println("LENH: MO CUA SLOT 2");
-        servo2.write(90);
+        servo2.write(0);
       }
       else {
         Serial.println("LENH: DONG CUA SLOT 2");
-        servo2.write(0);
+        servo2.write(180);
       }
     }
   }

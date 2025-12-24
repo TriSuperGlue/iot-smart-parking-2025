@@ -188,10 +188,10 @@ void streamCallback(FirebaseStream data){
     bool isOpen = data.boolData();
     if(isOpen) {
       Serial.println("LENH: MO CUA SLOT 1");
-      servo1.write(90);
+      servo1.write(0);
     } else {
       Serial.println("LENH: DONG CUA SLOT 1");
-      servo1.write(0);
+      servo1.write(180);
     }
   }
 
@@ -205,6 +205,15 @@ void streamCallback(FirebaseStream data){
   if(path == "/canh_bao/co_chay" && data.dataType() == "boolean") {
     fire_status_from_firebase = data.boolData();
     Serial.printf("Nhan cap nhat bao chay: %s\n", fire_status_from_firebase ? "CO CHAY" : "BINH THUONG");
+
+    if(fire_status_from_firebase) {
+      servo1.write(0);
+      Serial.println("DA MO CUA THOAT HIEM");
+    }
+    else {
+      servo1.write(180);
+      Serial.println("DA DONG CUA THOAT HIEM");
+    }
   }
 }
 
